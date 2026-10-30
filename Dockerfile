@@ -104,6 +104,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libssl3 \
       libdbus-1-3 \
       libstdc++6 \
+      libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
 # The application is never a host administrator. Keep the runtime UID
