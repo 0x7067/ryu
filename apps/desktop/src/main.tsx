@@ -79,7 +79,11 @@ void Promise.all([
 					<AccountLocaleSync save={saveAccountLocale} />
 					{/* The in-chat consent host is provided by the signed-in shell
 					    and the overlay windows (src/boot), next to the chat. */}
-					<App hostSurface="desktop" />
+					<App
+						hostSurface={
+							import.meta.env.VITE_RYU_SURFACE === "webapp" ? "web" : "desktop"
+						}
+					/>
 				</LanguagePackBridge>
 			</QueryClientProvider>
 		</StrictMode>

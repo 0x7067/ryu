@@ -1,0 +1,53 @@
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+:{$PORT:10000} {
+	header {
+		-Server
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+	}
+
+	# Render can check readiness without owner credentials.
+	handle /api/health {
+		reverse_proxy 127.0.0.1:7980
+	}
+
+	handle {
+		route {
+		basic_auth bcrypt Ryu {
+			ryu {$RYU_WEB_PASSWORD_HASH}
+		}
+		@crossSite header Sec-Fetch-Site cross-site
+		respond @crossSite "Cross-site requests are not allowed" 403
+		@foreignOrigin {
+			header Origin *
+			not header Origin {$RYU_WEB_ORIGIN}
+		}
+		respond @foreignOrigin "Origin is not allowed" 403
+
+		@core path /api /api/* /v1 /v1/* /mcp /mcp/* /ws /ws/* /health /heartbeat /workflows /workflows/*
+		handle @core {
+			reverse_proxy 127.0.0.1:7980 {
+				header_up Host 127.0.0.1:7980
+				header_up Authorization "Bearer {$RYU_NODE_AUTH_TOKEN}"
+				header_up -Cookie
+				header_up -Origin
+				flush_interval -1
+			}
+		}
+		handle /assets/* {
+			root * /usr/share/ryu/web
+			file_server
+		}
+		handle {
+			root * /usr/share/ryu/web
+			try_files {path} /index.html
+			file_server
+		}
+		}
+	}
+}
