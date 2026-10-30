@@ -105,6 +105,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libdbus-1-3 \
       libstdc++6 \
       libgomp1 \
+      libasound2t64 \
     && rm -rf /var/lib/apt/lists/*
 
 # The application is never a host administrator. Keep the runtime UID
@@ -115,6 +116,8 @@ RUN groupadd --gid 10001 ryu \
       --no-create-home --shell /usr/sbin/nologin ryu \
     && install -d -o 10001 -g 10001 -m 0750 /data
 
+# Managed Pi requires Bun; native sidecars use ALSA from the runtime packages above.
+COPY --from=oven/bun:1 /usr/local/bin/bun /usr/local/bin/bun
 COPY --from=builder /usr/local/bin/ryu-core /usr/local/bin/ryu-core
 COPY --from=builder /usr/local/bin/ryu-gateway /usr/local/bin/ryu-gateway
 COPY --chmod=0644 config/node-config.example.json /usr/share/ryu/node-config.example.json
