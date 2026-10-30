@@ -74,6 +74,8 @@ COPY . .
 # apps/core/package.json (`build`), release.yml and release-local.sh; keep all four
 # in sync. (Docker cannot reuse the package.json script: bun is not in this image.)
 ENV CARGO_TARGET_DIR=/src/target
+# Limit peak memory on Render's 8 GiB Starter builder.
+ENV CARGO_BUILD_JOBS=1
 # The hosted Marketplace verifying key, compiled into Core via `option_env!`.
 # Optional: without it (and without the same variable at runtime) a release Core
 # refuses Marketplace installs instead of trusting the local Gateway's key.
