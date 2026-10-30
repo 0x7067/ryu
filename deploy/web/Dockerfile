@@ -7,7 +7,11 @@ COPY --from=webserver /usr/bin/caddy /usr/local/bin/caddy
 COPY --from=web / /usr/share/ryu/web/
 COPY --chmod=0644 deploy/web/Caddyfile /etc/ryu/Caddyfile
 COPY --chmod=0755 deploy/web/start.sh /usr/local/bin/ryu-web-start
-RUN chmod 0755 /etc/ryu /usr/share/ryu \
+# Recreate the executable without the upstream cap_net_bind_service xattr.
+# Render drops capabilities, and Caddy only needs the unprivileged PORT.
+RUN cp /usr/local/bin/caddy /usr/local/bin/caddy-unprivileged \
+ && mv /usr/local/bin/caddy-unprivileged /usr/local/bin/caddy \
+ && chmod 0755 /usr/local/bin/caddy /etc/ryu /usr/share/ryu \
  && find /usr/share/ryu/web -type d -exec chmod 0755 {} + \
  && find /usr/share/ryu/web -type f -exec chmod 0644 {} +
 USER 10001:10001
