@@ -116,9 +116,8 @@ RUN groupadd --gid 10001 ryu \
 
 COPY --from=builder /usr/local/bin/ryu-core /usr/local/bin/ryu-core
 COPY --from=builder /usr/local/bin/ryu-gateway /usr/local/bin/ryu-gateway
-COPY config/node-config.example.json /usr/share/ryu/node-config.example.json
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY --chmod=0644 config/node-config.example.json /usr/share/ryu/node-config.example.json
+COPY --chmod=0755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Core persists everything (models, state, keys) under RYU_DIR; point it at a
 # mountable volume so a redeploy does not re-download the local model stack.
